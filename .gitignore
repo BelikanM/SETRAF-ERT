@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Backups et fichiers temporaires
+*.backup
+*.bak*
+*.old*
+*.broken
+*.log
+*_fix*.py
+
+# Streamlit
+.streamlit/
+
+# Data files (optionnel)
+# *.dat
+# *.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

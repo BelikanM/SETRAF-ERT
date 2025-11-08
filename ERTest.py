@@ -16,6 +16,14 @@ import pygimli as pg
 from pygimli.physics.ert import ERTManager, simulate
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
+# Import du module d'authentification
+try:
+    from auth_module import AuthManager, show_auth_ui, show_user_info, require_auth
+    AUTH_ENABLED = True
+except ImportError:
+    AUTH_ENABLED = False
+    print("⚠️ Module d'authentification non disponible")
+
 # --- Table de réglage température (Ts) ---
 temperature_control_table = {
     36: {0:31, 5:31, 10:32, 15:33, 20:34, 25:34, 30:35, 35:36, 40:37, 45:37, 50:38, 55:39, 60:40, 65:40, 70:41, 75:42, 80:43, 85:43, 90:44, 95:45},
@@ -704,7 +712,43 @@ st.set_page_config(
     layout="wide", 
     initial_sidebar_state="expanded"
 )
+
+# ========== SYSTÈME D'AUTHENTIFICATION ==========
+if AUTH_ENABLED:
+    auth_manager = AuthManager()
+    
+    # Vérifier l'authentification
+    if not auth_manager.is_authenticated():
+        # Afficher l'interface de connexion
+        st.markdown("""
+        <div style="text-align: center; padding: 20px;">
+            <h1>💧 SETRAF - Subaquifère ERT Analysis Tool</h1>
+            <p style="font-size: 18px; color: #666;">
+                Plateforme d'analyse géophysique avancée
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        show_auth_ui()
+        st.stop()
+    
+    # Afficher les informations utilisateur dans la sidebar
+    show_user_info()
+
 st.title("💧 SETRAF - Subaquifère ERT Analysis Tool (08 Novembre 2025)")
+
+# Message de bienvenue pour utilisateur authentifié
+if AUTH_ENABLED and st.session_state.authenticated:
+    user = st.session_state.user
+    st.success(f"👋 Bienvenue, {user.get('fullName', user.get('username'))} !")
+    
+    with st.expander("ℹ️ Informations de session", expanded=False):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("👤 Utilisateur", user.get('username'))
+        with col2:
+            st.metric("📧 Email", user.get('email'))
+        with col3:
+            st.metric("🎯 Rôle", user.get('role', 'user').upper())
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "🌡️ Calculateur Réglage Température", 
